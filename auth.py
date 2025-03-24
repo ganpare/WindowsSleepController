@@ -3,7 +3,7 @@ import json
 import uuid
 import logging
 from functools import wraps
-from flask import request, Response, session
+from flask import request, Response, session, redirect, url_for, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 
 logger = logging.getLogger(__name__)
@@ -19,10 +19,8 @@ def requires_auth(f):
     """Decorator for routes that require authentication."""
     @wraps(f)
     def decorated(*args, **kwargs):
-        auth = request.authorization
-        
-        if not auth or not check_auth(auth.username, auth.password):
-            return authenticate()
+        if not session.get('logged_in'):
+            return redirect(url_for('login'))
         return f(*args, **kwargs)
     return decorated
 
@@ -37,6 +35,7 @@ def check_auth(username, password):
     
     return username == admin_username and password == admin_password
 
+# Legacy function kept for API authentication
 def authenticate():
     """Send the authentication challenge."""
     return Response(

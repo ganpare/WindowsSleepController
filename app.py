@@ -1,10 +1,10 @@
 import os
 import logging
-from flask import Flask, request, jsonify, render_template, abort, redirect, url_for, flash
+from flask import Flask, request, jsonify, render_template, abort, redirect, url_for, flash, session
 from werkzeug.security import check_password_hash
 import datetime
 from sleep_controller import trigger_sleep
-from auth import requires_auth, create_api_key, get_api_keys
+from auth import requires_auth, create_api_key, get_api_keys, check_auth
 
 # Configure logging
 logging.basicConfig(
@@ -24,6 +24,31 @@ app.secret_key = os.environ.get("SESSION_SECRET", "default_secret_key_for_develo
 # Store sleep request history
 sleep_requests = []
 
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    """Login page."""
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        
+        if check_auth(username, password):
+            session['logged_in'] = True
+            session['username'] = username
+            flash('ログインに成功しました', 'success')
+            return redirect(url_for('index'))
+        else:
+            flash('ユーザー名かパスワードが間違っています', 'danger')
+    
+    return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    """Logout user."""
+    session.pop('logged_in', None)
+    session.pop('username', None)
+    flash('ログアウトしました', 'info')
+    return redirect(url_for('login'))
+
 @app.route('/')
 @requires_auth
 def index():
@@ -36,17 +61,27 @@ def index():
 @app.route('/api/sleep', methods=['POST'])
 def api_sleep():
     """API endpoint to trigger sleep mode."""
-    # Get API key from request
+    # Option 1: API Key in header
     api_key = request.headers.get('X-API-Key')
-    if not api_key:
-        logger.warning("Sleep request received without API key")
-        return jsonify({"error": "API key required"}), 401
-
-    # Verify API key
-    api_keys = get_api_keys()
-    if not any(check_password_hash(stored_key, api_key) for stored_key in api_keys):
-        logger.warning(f"Sleep request with invalid API key: {api_key[:5]}...")
-        return jsonify({"error": "Invalid API key"}), 401
+    if api_key:
+        # Verify API key
+        api_keys = get_api_keys()
+        if any(check_password_hash(stored_key, api_key) for stored_key in api_keys):
+            # API key is valid, proceed
+            pass
+        else:
+            logger.warning(f"Sleep request with invalid API key: {api_key[:5]}...")
+            return jsonify({"error": "Invalid API key"}), 401
+    
+    # Option 2: Basic auth as fallback
+    elif request.authorization:
+        auth = request.authorization
+        if not check_auth(auth.username, auth.password):
+            logger.warning("Sleep request with invalid Basic auth")
+            return jsonify({"error": "Invalid credentials"}), 401
+    else:
+        logger.warning("Sleep request received without authentication")
+        return jsonify({"error": "Authentication required"}), 401
     
     # Log the request details
     timestamp = datetime.datetime.now()
