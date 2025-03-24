@@ -81,7 +81,7 @@ def api_sleep():
             return jsonify({"error": "無効な認証情報"}), 401
     else:
         logger.warning("Sleep request received without authentication")
-        return jsonify({"error": "Authentication required"}), 401
+        return jsonify({"error": "認証が必要です"}), 401
     
     # Log the request details
     timestamp = datetime.datetime.now()
@@ -105,10 +105,10 @@ def api_sleep():
     success, message = trigger_sleep()
     
     if success:
-        return jsonify({"status": "success", "message": message}), 200
+        return jsonify({"status": "成功", "message": message}), 200
     else:
         logger.error(f"Failed to trigger sleep: {message}")
-        return jsonify({"status": "error", "message": message}), 500
+        return jsonify({"status": "エラー", "message": message}), 500
 
 @app.route('/generate-api-key', methods=['POST'])
 @requires_auth
@@ -125,11 +125,11 @@ def status():
 
 @app.errorhandler(404)
 def page_not_found(e):
-    return jsonify({"error": "Not found"}), 404
+    return jsonify({"error": "ページが見つかりません"}), 404
 
 @app.errorhandler(500)
 def server_error(e):
-    return jsonify({"error": "Server error"}), 500
+    return jsonify({"error": "サーバーエラー"}), 500
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", debug=True)

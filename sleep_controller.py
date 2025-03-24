@@ -34,10 +34,10 @@ def trigger_sleep():
             # Just log the event for simulation
             with open("sleep_events.log", "a") as f:
                 f.write(f"{time.strftime('%Y-%m-%d %H:%M:%S')} - SIMULATED SLEEP TRIGGERED\n")
-            return True, "Sleep command simulated successfully (demo mode)"
+            return True, "スリープコマンドが正常にシミュレートされました（デモモード）"
         except Exception as e:
             logger.error(f"Error in sleep simulation: {str(e)}")
-            return False, f"Error in sleep simulation: {str(e)}"
+            return False, f"スリープシミュレーションでエラーが発生しました: {str(e)}"
     
     try:
         # Import Windows specific modules
@@ -51,7 +51,7 @@ def trigger_sleep():
             logger.info("Using simulated sleep mode instead")
             with open("sleep_events.log", "a") as f:
                 f.write(f"{time.strftime('%Y-%m-%d %H:%M:%S')} - SIMULATED SLEEP TRIGGERED\n")
-            return True, "Sleep command simulated successfully (demo mode)"
+            return True, "スリープコマンドが正常にシミュレートされました（デモモード）"
         
         # Check for admin privileges
         try:
