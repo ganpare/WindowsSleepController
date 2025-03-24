@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ja" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AWS Lambda セットアップ - Alexa スリープコントロール</title>
+    <link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
+</head>
+<body>
+    <div class="container py-4">
+        <header class="pb-3 mb-4 border-bottom">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-power me-2" viewBox="0 0 16 16">
+                        <path d="M7.5 1v7h1V1h-1z"/>
+                        <path d="M3 8.812a4.999 4.999 0 0 1 2.578-4.375l-.485-.874A6 6 0 1 0 11 3.616l-.501.865A5 5 0 1 1 3 8.812z"/>
+                    </svg>
+                    <h1 class="fs-4">AWS Lambda セットアップ</h1>
+                </div>
+                <a href="{{ url_for('index') }}" class="btn btn-outline-secondary btn-sm">ダッシュボードに戻る</a>
+            </div>
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">AWS Lambda関数の設定</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <p class="mb-0">AWS Lambda関数をセットアップすると、Alexaスキルとの接続が簡単になります。以下の情報を入力してください。</p>
+                </div>
+
+                <form action="{{ url_for('setup_aws_lambda') }}" method="post" class="mt-4">
+                    <div class="mb-3">
+                        <label for="aws_access_key" class="form-label">AWS アクセスキーID</label>
+                        <input type="text" class="form-control" id="aws_access_key" name="aws_access_key" required>
+                        <div class="form-text">AWSコンソールからアクセスキーを生成できます。IAMユーザーにはLambda関数を作成する権限が必要です。</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="aws_secret_key" class="form-label">AWS シークレットアクセスキー</label>
+                        <input type="password" class="form-control" id="aws_secret_key" name="aws_secret_key" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="aws_region" class="form-label">AWSリージョン</label>
+                        <select class="form-select" id="aws_region" name="aws_region">
+                            <option value="us-east-1" selected>米国東部（バージニア北部）- us-east-1</option>
+                            <option value="us-east-2">米国東部（オハイオ）- us-east-2</option>
+                            <option value="us-west-1">米国西部（北カリフォルニア）- us-west-1</option>
+                            <option value="us-west-2">米国西部（オレゴン）- us-west-2</option>
+                            <option value="ap-northeast-1">アジアパシフィック（東京）- ap-northeast-1</option>
+                            <option value="ap-northeast-2">アジアパシフィック（ソウル）- ap-northeast-2</option>
+                            <option value="ap-northeast-3">アジアパシフィック（大阪）- ap-northeast-3</option>
+                            <option value="ap-south-1">アジアパシフィック（ムンバイ）- ap-south-1</option>
+                            <option value="ap-southeast-1">アジアパシフィック（シンガポール）- ap-southeast-1</option>
+                            <option value="ap-southeast-2">アジアパシフィック（シドニー）- ap-southeast-2</option>
+                            <option value="eu-central-1">欧州（フランクフルト）- eu-central-1</option>
+                            <option value="eu-west-1">欧州（アイルランド）- eu-west-1</option>
+                            <option value="eu-west-2">欧州（ロンドン）- eu-west-2</option>
+                            <option value="eu-west-3">欧州（パリ）- eu-west-3</option>
+                        </select>
+                        <div class="form-text">Lambda関数を作成するリージョンを選択します。Alexaスキルと同じリージョンを選択することをお勧めします。</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="runtime" class="form-label">ランタイム</label>
+                        <select class="form-select" id="runtime" name="runtime">
+                            <option value="nodejs" selected>Node.js</option>
+                            <option value="python">Python</option>
+                        </select>
+                        <div class="form-text">Lambda関数のランタイム環境を選択します。</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="public_endpoint" class="form-label">公開エンドポイントURL（オプション）</label>
+                        <input type="text" class="form-control" id="public_endpoint" name="public_endpoint" placeholder="https://example.com または http://public-ip:5000">
+                        <div class="form-text">
+                            このサーバーが外部からアクセス可能なURLを入力してください。例: https://example.com、http://123.456.789.012:5000 など。
+                            ngrokなどのサービスを使用すると、一時的な公開URLを取得できます。
+                        </div>
+                    </div>
+
+                    <div class="mt-4 d-flex justify-content-between">
+                        <a href="{{ url_for('index') }}" class="btn btn-secondary">キャンセル</a>
+                        <button type="submit" class="btn btn-primary">Lambda関数を作成</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">重要な情報</h5>
+            </div>
+            <div class="card-body">
+                <ul class="mb-0">
+                    <li>APIキー: <code>{{ api_key }}</code> <span class="text-danger">（この画面を離れると表示されなくなります）</span></li>
+                    <li>Lambda関数を作成するにはAWSアカウントが必要です。</li>
+                    <li>IAMユーザーには、Lambda関数の作成と管理に必要な権限が必要です。</li>
+                    <li>作成されたLambda関数は、Alexaスキルから呼び出されるたびに課金されます。</li>
+                </ul>
+            </div>
+        </div>
+
+        <footer class="pt-3 mt-4 text-body-secondary border-top">
+            &copy; 2023 Alexa スリープコントローラー
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -39,9 +39,24 @@
                 <div class="card h-100">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">APIキー</h5>
-                        <form action="{{ url_for('generate_api_key') }}" method="post">
-                            <button type="submit" class="btn btn-primary btn-sm">新しいキーを生成</button>
-                        </form>
+                        <div class="dropdown">
+                            <button class="btn btn-primary btn-sm dropdown-toggle" type="button" id="apiKeyDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                新しいキーを生成
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="apiKeyDropdown">
+                                <li>
+                                    <form action="{{ url_for('generate_api_key') }}" method="post">
+                                        <button type="submit" class="dropdown-item">APIキーのみ生成</button>
+                                    </form>
+                                </li>
+                                <li>
+                                    <form action="{{ url_for('generate_api_key') }}" method="post">
+                                        <input type="hidden" name="aws_setup" value="yes">
+                                        <button type="submit" class="dropdown-item">APIキー生成とAWS Lambda連携</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                     <div class="card-body">
                         {% if api_keys %}
@@ -114,15 +129,28 @@
             </div>
             <div class="card-body">
                 <h6>1. APIキーの生成</h6>
-                <p>上の「新しいキーを生成」ボタンをクリックして、APIキーを作成します。このキーは一度しか表示されないため、安全に保存してください。</p>
+                <p>「新しいキーを生成」ボタンをクリックして、以下のいずれかのオプションを選択します：</p>
+                <ul>
+                    <li><strong>APIキーのみ生成</strong> - 基本的なAPIキーを生成します。手動でAlexa/AWS設定を行う場合に選択します。</li>
+                    <li><strong>APIキー生成とAWS Lambda連携</strong> - APIキーを生成し、AWS Lambda関数を自動的に作成してAlexaスキルと連携させます。</li>
+                </ul>
                 
-                <h6>2. Alexaスキルの設定</h6>
-                <p>AWS Lambdaを使用してカスタムAlexaスキルを作成し、APIキーを使用してエンドポイントにリクエストを送信するように設定します。</p>
+                <h6>2. AWS Lambda統合（推奨）</h6>
+                <p>AWS Lambda統合を選択すると、以下のステップが自動化されます：</p>
+                <ul>
+                    <li>APIキーの生成と保存</li>
+                    <li>Lambda関数の作成と設定</li>
+                    <li>Alexaスキル用のJSON定義の生成</li>
+                    <li>詳細なセットアップ手順の提供</li>
+                </ul>
                 
                 <h6>3. ネットワークの設定</h6>
                 <p>ルーターでポート5000がこのコンピューターに転送されていることを確認するか、ngrokなどのサービスを使用してエンドポイントを安全に公開します。</p>
                 
-                <h6>4. セットアップのテスト</h6>
+                <h6>4. Alexaスキルの設定</h6>
+                <p>AWS Lambda統合を使用した場合は、提供された手順に従ってAlexaスキルを設定します。手動設定の場合は、AWS Lambdaを使用してカスタムAlexaスキルを作成し、APIキーを使用してエンドポイントにリクエストを送信するように設定します。</p>
+                
+                <h6>5. セットアップのテスト</h6>
                 <p>APIキーを使用してエンドポイントにリクエストを送信するか、「アレクサ、コンピューターをスリープさせて」と言ってみてください（スキルの設定によります）。</p>
             </div>
         </div>

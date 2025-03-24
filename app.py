@@ -5,6 +5,7 @@ from werkzeug.security import check_password_hash
 import datetime
 from sleep_controller import trigger_sleep
 from auth import requires_auth, create_api_key, get_api_keys, check_auth
+import aws_integration
 
 # Configure logging
 logging.basicConfig(
@@ -116,7 +117,75 @@ def generate_api_key():
     """Generate a new API key."""
     key = create_api_key()
     flash('新しいAPIキーが正常に生成されました', 'success')
+    
+    # API生成時にAWS Lambda統合のパラメータがある場合
+    aws_setup = request.form.get('aws_setup')
+    if aws_setup and aws_setup == 'yes':
+        # Lambda情報をセッションに保存
+        session['new_api_key'] = key
+        return redirect(url_for('setup_aws_lambda'))
+    
     return redirect(url_for('index'))
+
+@app.route('/setup-aws-lambda', methods=['GET', 'POST'])
+@requires_auth
+def setup_aws_lambda():
+    """AWS Lambda関数のセットアップページ"""
+    if 'new_api_key' not in session:
+        flash('APIキーが見つかりません。新しいキーを生成してください。', 'danger')
+        return redirect(url_for('index'))
+    
+    if request.method == 'POST':
+        # AWSの認証情報を取得
+        aws_access_key = request.form.get('aws_access_key')
+        aws_secret_key = request.form.get('aws_secret_key')
+        aws_region = request.form.get('aws_region', 'us-east-1')
+        runtime = request.form.get('runtime', 'nodejs')
+        
+        # AWSパブリックIPまたはドメイン
+        public_endpoint = request.form.get('public_endpoint')
+        if not public_endpoint:
+            # ローカルIPの場合は警告
+            flash('公開エンドポイントが指定されていません。AWSから接続できるように、公開URLを設定することをお勧めします。', 'warning')
+            public_endpoint = f"http://{request.host}"
+        
+        # 末尾のスラッシュを削除
+        if public_endpoint.endswith('/'):
+            public_endpoint = public_endpoint[:-1]
+            
+        try:
+            # Lambda関数を作成
+            lambda_info = aws_integration.create_lambda_function(
+                api_key=session['new_api_key'],
+                endpoint_url=public_endpoint,
+                aws_access_key=aws_access_key,
+                aws_secret_key=aws_secret_key,
+                aws_region=aws_region,
+                runtime=runtime
+            )
+            
+            # セットアップ手順を生成
+            instructions = aws_integration.get_alexa_skill_setup_instructions(lambda_info)
+            
+            # Alexaスキル定義JSONを生成
+            skill_json = aws_integration.generate_alexa_skill_json(lambda_info['function_arn'])
+            
+            # APIキーをセッションから削除
+            session.pop('new_api_key', None)
+            
+            # 結果ページにリダイレクト
+            return render_template('aws_lambda_success.html', 
+                                 lambda_info=lambda_info,
+                                 instructions=instructions,
+                                 skill_json=skill_json)
+            
+        except Exception as e:
+            logger.exception("Lambda関数の作成中にエラーが発生しました")
+            flash(f'Lambda関数の作成に失敗しました: {str(e)}', 'danger')
+            return redirect(url_for('index'))
+    
+    # GETリクエストの場合、AWSセットアップフォームを表示
+    return render_template('aws_lambda_setup.html', api_key=session['new_api_key'])
 
 @app.route('/status')
 def status():

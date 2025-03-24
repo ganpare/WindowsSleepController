@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ja" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lambda 設定完了 - Alexa スリープコントロール</title>
+    <link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
+</head>
+<body>
+    <div class="container py-4">
+        <header class="pb-3 mb-4 border-bottom">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-power me-2" viewBox="0 0 16 16">
+                        <path d="M7.5 1v7h1V1h-1z"/>
+                        <path d="M3 8.812a4.999 4.999 0 0 1 2.578-4.375l-.485-.874A6 6 0 1 0 11 3.616l-.501.865A5 5 0 1 1 3 8.812z"/>
+                    </svg>
+                    <h1 class="fs-4">AWS Lambda 設定完了</h1>
+                </div>
+                <a href="{{ url_for('index') }}" class="btn btn-outline-secondary btn-sm">ダッシュボードに戻る</a>
+            </div>
+        </header>
+
+        <div class="alert alert-success mb-4">
+            <h4 class="alert-heading">成功！</h4>
+            <p>Lambda関数が正常に作成されました。これでAlexaスキルの設定を進めることができます。</p>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Lambda関数の情報</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>関数名:</strong> {{ lambda_info.function_name }}</p>
+                        <p><strong>リージョン:</strong> {{ lambda_info.region }}</p>
+                        <p><strong>ARN:</strong> <code>{{ lambda_info.function_arn }}</code></p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>ランタイム:</strong> {{ lambda_info.runtime }}</p>
+                        <p><strong>作成日時:</strong> {{ lambda_info.creation_date }}</p>
+                        <p><strong>APIエンドポイント:</strong> <code>{{ lambda_info.endpoint_url }}</code></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Alexaスキルの設定手順</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info mb-3">
+                    以下の手順に従って、Alexa開発者コンソールでスキルを設定してください。
+                </div>
+                
+                <pre class="instructions bg-dark text-light p-3 rounded">{{ instructions }}</pre>
+                
+                <h6 class="mt-4">Alexaスキル定義JSON</h6>
+                <p>以下のJSONをAlexaスキルのInteraction Modelセクションにコピー＆ペーストしてください：</p>
+                
+                <div class="position-relative">
+                    <pre class="bg-dark text-light p-3 rounded skill-json">{{ skill_json }}</pre>
+                    <button id="copyButton" class="btn btn-sm btn-outline-light position-absolute top-0 end-0 m-2" onclick="copyToClipboard()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard" viewBox="0 0 16 16">
+                            <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+                            <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+                        </svg>
+                        コピー
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">次のステップ</h5>
+            </div>
+            <div class="card-body">
+                <ol class="mb-0">
+                    <li>Alexa開発者コンソール（<a href="https://developer.amazon.com/alexa/console/ask" target="_blank" class="text-info">https://developer.amazon.com/alexa/console/ask</a>）にアクセスします。</li>
+                    <li>「新しいスキルを作成」をクリックし、スキル名を入力します。</li>
+                    <li>モデルとして「カスタム」を選択し、ホスティング方法として「AWS Lambdaでプロビジョニング」を選択します。</li>
+                    <li>Interaction Modelセクションで、上記のスキル定義JSONをインポートします。</li>
+                    <li>エンドポイント設定で、上記のLambda ARNを入力します。</li>
+                    <li>スキルをビルドしてテストします。「アレクサ、コンピューターをスリープさせて」と言って動作を確認します。</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="text-center mb-4">
+            <a href="{{ url_for('index') }}" class="btn btn-primary">ダッシュボードに戻る</a>
+        </div>
+
+        <footer class="pt-3 mt-4 text-body-secondary border-top">
+            &copy; 2023 Alexa スリープコントローラー
+        </footer>
+    </div>
+
+    <script>
+        function copyToClipboard() {
+            const skillJson = document.querySelector('.skill-json').textContent;
+            navigator.clipboard.writeText(skillJson).then(() => {
+                const copyButton = document.getElementById('copyButton');
+                copyButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check" viewBox="0 0 16 16"><path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/></svg> コピー済み';
+                copyButton.classList.remove('btn-outline-light');
+                copyButton.classList.add('btn-success');
+                
+                setTimeout(() => {
+                    copyButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard" viewBox="0 0 16 16"><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/><path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/></svg> コピー';
+                    copyButton.classList.remove('btn-success');
+                    copyButton.classList.add('btn-outline-light');
+                }, 2000);
+            });
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
