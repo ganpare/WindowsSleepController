@@ -36,7 +36,7 @@ exports.handler = async function(event, context) {
             // APIにスリープリクエストを送信
             const response = await axios.post('{{ENDPOINT_URL}}/api/sleep', {}, {
                 headers: {
-                    'Authorization': 'Bearer {{API_KEY}}'
+                    'X-API-Key': '{{API_KEY}}'
                 }
             });
             
@@ -106,7 +106,7 @@ def lambda_handler(event, context):
             req = urllib.request.Request('{{ENDPOINT_URL}}/api/sleep', 
                                         data=None,
                                         headers={
-                                            'Authorization': 'Bearer {{API_KEY}}'
+                                            'X-API-Key': '{{API_KEY}}'
                                         },
                                         method='POST')
             
