@@ -22,7 +22,7 @@ def trigger_sleep():
     Returns:
         tuple: (success, message)
     """
-    logger.info("Sleep command triggered")
+    logger.info("スリープコマンドが起動されました")
     
     # Check if running on Windows
     if platform.system() != 'Windows':
@@ -30,13 +30,13 @@ def trigger_sleep():
         
         # Simulated sleep mode for demonstration in non-Windows environments (e.g., Replit)
         try:
-            logger.info("Simulating sleep mode (demo mode)")
+            logger.info("スリープモードをシミュレートしています（デモモード）")
             # Just log the event for simulation
             with open("sleep_events.log", "a") as f:
                 f.write(f"{time.strftime('%Y-%m-%d %H:%M:%S')} - SIMULATED SLEEP TRIGGERED\n")
             return True, "スリープコマンドが正常にシミュレートされました（デモモード）"
         except Exception as e:
-            logger.error(f"Error in sleep simulation: {str(e)}")
+            logger.error(f"スリープシミュレーションでエラー: {str(e)}")
             return False, f"スリープシミュレーションでエラーが発生しました: {str(e)}"
     
     try:
@@ -61,11 +61,11 @@ def trigger_sleep():
         except Exception as e:
             logger.warning(f"管理者ステータスを確認できませんでした: {e}")
         
-        logger.info("Attempting to put system to sleep...")
+        logger.info("システムをスリープ状態にしようとしています...")
         
         # Method 1: Using Windows API through ctypes
         try:
-            logger.debug("Trying sleep method 1: SetSuspendState")
+            logger.debug("スリープ方法1を試行中: SetSuspendState")
             ctypes.windll.powrprof.SetSuspendState(0, 1, 0)
             time.sleep(1)  # Wait a bit to see if sleep was triggered
             
@@ -76,7 +76,7 @@ def trigger_sleep():
             
         # Method 2: Using rundll32
         try:
-            logger.debug("Trying sleep method 2: rundll32")
+            logger.debug("スリープ方法2を試行中: rundll32")
             subprocess.run(["rundll32.exe", "powrprof.dll,SetSuspendState", "0,1,0"], 
                            check=True, 
                            shell=True, 
@@ -87,7 +87,7 @@ def trigger_sleep():
             
         # Method 3: Using powershell command
         try:
-            logger.debug("Trying sleep method 3: powershell")
+            logger.debug("スリープ方法3を試行中: PowerShell")
             subprocess.run(["powershell", "-Command", "Add-Type -Assembly System.Windows.Forms; [System.Windows.Forms.Application]::SetSuspendState('Suspend', $false, $false)"], 
                            check=True, 
                            shell=True, 
