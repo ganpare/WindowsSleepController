@@ -71,14 +71,14 @@ def api_sleep():
             pass
         else:
             logger.warning(f"Sleep request with invalid API key: {api_key[:5]}...")
-            return jsonify({"error": "Invalid API key"}), 401
+            return jsonify({"error": "無効なAPIキー"}), 401
     
     # Option 2: Basic auth as fallback
     elif request.authorization:
         auth = request.authorization
         if not check_auth(auth.username, auth.password):
             logger.warning("Sleep request with invalid Basic auth")
-            return jsonify({"error": "Invalid credentials"}), 401
+            return jsonify({"error": "無効な認証情報"}), 401
     else:
         logger.warning("Sleep request received without authentication")
         return jsonify({"error": "Authentication required"}), 401
@@ -115,7 +115,7 @@ def api_sleep():
 def generate_api_key():
     """Generate a new API key."""
     key = create_api_key()
-    flash('New API key generated successfully', 'success')
+    flash('新しいAPIキーが正常に生成されました', 'success')
     return redirect(url_for('index'))
 
 @app.route('/status')
