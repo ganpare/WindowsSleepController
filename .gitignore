@@ -1,0 +1,39 @@
+# Python関連ファイル
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# ログファイル
+*.log
+alexa_sleep.log
+
+# 機密情報
+.env
+api_keys.json
+
+# Windowsファイル
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# プロジェクト固有
+venv/
+.venv/
+uv.lock
