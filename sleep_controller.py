@@ -26,7 +26,7 @@ def trigger_sleep():
     
     # Check if running on Windows
     if platform.system() != 'Windows':
-        logger.info("Not running on Windows platform - using simulated sleep")
+        logger.info("Windowsプラットフォームで実行されていません - シミュレートされたスリープを使用します")
         
         # Simulated sleep mode for demonstration in non-Windows environments (e.g., Replit)
         try:
@@ -46,9 +46,9 @@ def trigger_sleep():
             import win32security
             import win32con
         except ImportError:
-            logger.warning("Windows-specific modules not available")
+            logger.warning("Windows固有のモジュールが利用できません")
             # Fallback to simulation mode
-            logger.info("Using simulated sleep mode instead")
+            logger.info("代わりにシミュレートされたスリープモードを使用します")
             with open("sleep_events.log", "a") as f:
                 f.write(f"{time.strftime('%Y-%m-%d %H:%M:%S')} - SIMULATED SLEEP TRIGGERED\n")
             return True, "スリープコマンドが正常にシミュレートされました（デモモード）"
@@ -57,9 +57,9 @@ def trigger_sleep():
         try:
             is_admin = ctypes.windll.shell32.IsUserAnAdmin() != 0
             if not is_admin:
-                logger.warning("Process not running with admin privileges")
+                logger.warning("プロセスが管理者権限で実行されていません")
         except Exception as e:
-            logger.warning(f"Could not check admin status: {e}")
+            logger.warning(f"管理者ステータスを確認できませんでした: {e}")
         
         logger.info("Attempting to put system to sleep...")
         
@@ -70,9 +70,9 @@ def trigger_sleep():
             time.sleep(1)  # Wait a bit to see if sleep was triggered
             
             # If we're still running after 1 second, the sleep command might have failed
-            logger.info("System still running after SetSuspendState call, trying alternate method")
+            logger.info("SetSuspendState呼び出し後もシステムが実行中です。代替方法を試行します")
         except Exception as e:
-            logger.error(f"Failed to sleep using SetSuspendState: {str(e)}")
+            logger.error(f"SetSuspendStateを使用したスリープに失敗しました: {str(e)}")
             
         # Method 2: Using rundll32
         try:
@@ -81,9 +81,9 @@ def trigger_sleep():
                            check=True, 
                            shell=True, 
                            capture_output=True)
-            return True, "Sleep command sent successfully"
+            return True, "スリープコマンドが正常に送信されました"
         except subprocess.SubprocessError as e:
-            logger.error(f"Failed to sleep using rundll32: {str(e)}")
+            logger.error(f"rundll32を使用したスリープに失敗しました: {str(e)}")
             
         # Method 3: Using powershell command
         try:
@@ -92,12 +92,12 @@ def trigger_sleep():
                            check=True, 
                            shell=True, 
                            capture_output=True)
-            return True, "Sleep command sent successfully"
+            return True, "スリープコマンドが正常に送信されました"
         except subprocess.SubprocessError as e:
-            logger.error(f"Failed to sleep using powershell: {str(e)}")
+            logger.error(f"PowerShellを使用したスリープに失敗しました: {str(e)}")
             
-        return False, "Failed to trigger sleep mode using all available methods"
+        return False, "利用可能なすべての方法でスリープモードの起動に失敗しました"
     
     except Exception as e:
-        logger.exception("Unexpected error in trigger_sleep")
-        return False, f"Error triggering sleep: {str(e)}"
+        logger.exception("スリープトリガーで予期しないエラーが発生しました")
+        return False, f"スリープの起動中にエラーが発生しました: {str(e)}"
