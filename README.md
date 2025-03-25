@@ -39,6 +39,24 @@ A Python-based Windows service that allows Amazon Alexa to remotely trigger slee
 
 ## Setting Up Alexa Integration
 
+### Method 1: Automated AWS Lambda Integration (Recommended)
+
+This application now features an automated AWS Lambda function generator that creates and configures everything for you:
+
+1. **Generate API Key with AWS Lambda Integration**:
+   - In the control panel, click "Generate New Key" and select "Generate API Key with AWS Lambda Integration"
+   - Enter your AWS credentials and desired configuration
+   - The system will automatically create a Lambda function configured to work with your endpoint
+
+2. **Set Up Alexa Skill**:
+   - Follow the instructions provided on the success page
+   - Copy the generated JSON for your Alexa Skill
+   - Set up the skill using the Alexa Developer Console and the provided Lambda ARN
+
+### Method 2: Manual Setup
+
+If you prefer to set up AWS Lambda manually:
+
 1. **Create an AWS Lambda function**:
    - Go to AWS Lambda and create a new function
    - Use a Node.js or Python runtime
@@ -49,10 +67,14 @@ A Python-based Windows service that allows Amazon Alexa to remotely trigger slee
    - Configure intents for triggering sleep mode
    - Link the skill to your Lambda function
 
-3. **Configure Network Access**:
-   - To access your PC from outside your home network, set up port forwarding on your router
-   - Forward port 5000 to your PC's local IP address
-   - Alternatively, use a service like ngrok for secure tunneling
+### Network Configuration
+
+To access your PC from outside your home network:
+
+- Set up port forwarding on your router (forward port 5000 to your PC's local IP)
+- Alternatively, use a service like ngrok for secure tunneling
+
+For detailed Windows setup instructions, see [WINDOWS_SETUP.md](WINDOWS_SETUP.md).
 
 ## Sample Lambda Function (Node.js)
 

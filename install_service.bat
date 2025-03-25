@@ -1,57 +1,50 @@
 @echo off
-echo Installing Alexa Sleep Service...
+echo ===================================================
+echo Windows Alexa Sleep Controller - Service Installer
+echo ===================================================
+echo.
 
-REM Get the directory of this batch file
-set "SCRIPT_DIR=%~dp0"
-cd /d "%SCRIPT_DIR%"
-
-REM Check Python installation
-python --version >nul 2>&1
-if %ERRORLEVEL% NEQ 0 (
-    echo Python is not installed or not in PATH. Please install Python 3.x.
+REM Check for administrator privileges
+net session >nul 2>&1
+if %errorLevel% neq 0 (
+    echo Error: This script must be run as administrator.
+    echo Please right-click on this file and select "Run as administrator".
+    echo.
     pause
     exit /b 1
 )
 
-REM Install required packages
+echo Checking Python installation...
+where python >nul 2>&1
+if %errorLevel% neq 0 (
+    echo Python not found in PATH. Please install Python 3.8 or higher.
+    echo Make sure to check "Add Python to PATH" during installation.
+    echo.
+    pause
+    exit /b 1
+)
+
 echo Installing required Python packages...
-pip install flask waitress pywin32 >nul 2>&1
-if %ERRORLEVEL% NEQ 0 (
-    echo Failed to install required packages.
-    pause
-    exit /b 1
-)
+python -m pip install flask flask-login flask-wtf gunicorn waitress pywin32 psutil boto3
 
-REM Configure service
-echo Configuring Windows service...
-python "%SCRIPT_DIR%win_service.py" install
-if %ERRORLEVEL% NEQ 0 (
-    echo Failed to install the service. Please run as administrator.
-    pause
-    exit /b 1
-)
+echo.
+echo Installing Windows service...
+python win_service.py install
 
-REM Start service
+echo.
 echo Starting service...
-python "%SCRIPT_DIR%win_service.py" start
-if %ERRORLEVEL% NEQ 0 (
-    echo Failed to start the service.
-    pause
-    exit /b 1
-)
+python win_service.py start
 
 echo.
-echo Alexa Sleep Service installed successfully!
-echo The service will automatically start when Windows boots.
+echo Service installation complete!
 echo.
-echo To access the control panel, open a web browser and go to:
+echo You can now access the control panel by visiting:
 echo http://localhost:5000
 echo.
 echo Default login:
 echo Username: admin
 echo Password: admin
 echo.
-echo IMPORTANT: Please change these credentials for security.
+echo IMPORTANT: For security reasons, please change the default password after login.
 echo.
-
 pause
